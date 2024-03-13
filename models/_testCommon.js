@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");

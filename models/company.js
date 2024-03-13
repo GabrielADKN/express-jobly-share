@@ -44,20 +44,44 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
-   *
-   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
-   * */
+/**
+ * Find all companies, optionally filtering by name, minimum employees, and maximum employees.
+ *
+ * Accepts an object with optional `name`, `minEmployees`, and `maxEmployees` properties.
+ * Returns an array of companies.
+ */
 
-  static async findAll() {
-    const companiesRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
+  static async findAll({ name, minEmployees, maxEmployees } = {}) {
+    let query = `SELECT handle,
+                        name,
+                        description,
+                        num_employees AS "numEmployees",
+                        logo_url AS "logoUrl"
+                 FROM companies`;
+    let whereExpressions = [];
+    let queryValues = [];
+
+    if (name) {
+      queryValues.push(`%${name.toLowerCase()}%`);
+      whereExpressions.push(`LOWER(name) LIKE $${queryValues.length}`);
+    }
+
+    if (minEmployees !== undefined) {
+      queryValues.push(minEmployees);
+      whereExpressions.push(`num_employees >= $${queryValues.length}`);
+    }
+
+    if (maxEmployees !== undefined) {
+      queryValues.push(maxEmployees);
+      whereExpressions.push(`num_employees <= $${queryValues.length}`);
+    }
+
+    if (whereExpressions.length > 0) {
+      query += " WHERE " + whereExpressions.join(" AND ");
+    }
+
+    query += " ORDER BY name";
+    const companiesRes = await db.query(query, queryValues);
     return companiesRes.rows;
   }
 
