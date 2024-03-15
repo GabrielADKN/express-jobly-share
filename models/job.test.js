@@ -9,7 +9,6 @@ const {
     commonAfterEach,
     commonAfterAll,
 } = require("./_testCommon");
-const e = require("express");
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -52,9 +51,8 @@ describe("create", function () {
             await Job.create(newJob);
             fail();
         } catch (err) {
-            expect(err.message).toEqual("Duplicate job: New");
-
             expect(err instanceof BadRequestError).toBeTruthy();
+            expect(err.message).toEqual("Duplicate job: New");
         }
     });
 
@@ -96,14 +94,14 @@ describe("findAll", function () {
             {
                 id: expect.any(Number),
                 title: "j1",
-                salary: 1,
+                salary: 10000,
                 equity: "0.1",
                 companyHandle: "c1",
             },
             {
                 id: expect.any(Number),
                 title: "j2",
-                salary: 2,
+                salary: 20000,
                 equity: "0.2",
                 companyHandle: "c2",
             },
