@@ -1,0 +1,40 @@
+services:
+
+  db:
+    image: postgres:16.1-bookworm
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: super_strong_password
+      POSTGRES_DB: jobly_test
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d
+      
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  web:
+    depends_on:
+      - db
+    build:
+      context: .
+    ports:
+      - 3001:3001
+    volumes:
+      - .:/app
+    environment:
+      NODE_ENV: test
+      DB_USER: dev
+      DB_PASS: super_strong_password
+      DB_HOST: db
+      PORT: 3001
+    
+    command: npm start
+    # # These commands are here so I can run the seed files via bash
+    # stdin_open: true # docker run -i
+    # tty: true        # docker run -t
+    # command: bash
